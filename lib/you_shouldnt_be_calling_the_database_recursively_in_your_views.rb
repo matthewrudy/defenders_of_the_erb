@@ -1,8 +1,10 @@
+$queries_executed = 0
+
 # YouShouldntBeCallingTheDatabaseRecursivelyInYourViews
 require 'action_controller/base'
 class ActionController::Base
   def render_with_db_protection(*args)
-    count_before = $queries_executed || 0
+    count_before = $queries_executed
     render_without_db_protection(*args)
     count =  $queries_executed - count_before
     if count > 0
@@ -21,10 +23,28 @@ ActiveRecord::Base.connection.class.class_eval do
   IGNORED_SQL = [/^PRAGMA/, /^SELECT currval/, /^SELECT CAST/, /^SELECT @@IDENTITY/, /^SELECT @@ROWCOUNT/, /^SHOW TABLES/, /^SHOW FIELDS FROM/, ]
 
   def execute_with_query_record(sql, name = nil, &block)
-    $queries_executed ||= 0
-    $queries_executed +=1 unless IGNORED_SQL.any? { |r| sql =~ r }
+    unless self.stop_recording_queries
+      $queries_executed +=1 unless IGNORED_SQL.any? { |r| sql =~ r }
+    end
     execute_without_query_record(sql, name, &block)
   end
 
   alias_method_chain :execute, :query_record
+  
+  attr_accessor :stop_recording_queries
+  def without_query_record
+    state_before, self.stop_recording_queries = self.stop_recording_queries, true
+    return yield
+    self.stop_recording_queries = state_before
+  end
+end
+
+require 'active_support/cache'
+class ActiveSupport::Cache::Store
+  def fetch_with_query_record_off(*args, &block)
+    ActiveRecord::Base.connection.without_query_record do
+      return fetch_without_query_record_off(*args, &block)
+    end
+  end
+  alias_method_chain :fetch, :query_record_off
 end
