@@ -10,7 +10,7 @@ class ActionController::Base
     queries_count =  queries_executed.length
     if queries_count > 0
       alert_html = <<-HTML
-        <div style="position:absolute; top:50px; left:50px; width:800px; height: 400px; background-color: white; border: 1px solid black">
+        <div id="matthewrudy-query-box" style="position:absolute; top:50px; left:50px; width:800px; height: 400px; background-color: white; border: 1px solid black">
           <img src="#{matthewrudy_url}" style="float:left"/>
           <blockquote style="font-size:40px;">
             &laquo;You shouldn't be calling the database recursively in your views&raquo;
@@ -18,9 +18,10 @@ class ActionController::Base
           <blockquote style="font-size:20px;">
             You called the database #{queries_count} times, that's way too many. (<a href="#" onclick="document.getElementById('matthewrudy-queries-list').style.display = 'block'; return false;">show</a>)</p>
           </blockquote>
-          <ul id="matthewrudy-queries-list" style="display:none">
-            #{queries_executed.map{|query| "<li>#{query.inspect}</li>"}.join("\n")}
-          </ul>
+          <pre id="matthewrudy-queries-list" style="display:none; width: 400px; overflow: auto">
+            #{queries_executed.join("\n")}
+          </pre>
+          <a href="#" title="close this matthewrudy" onclick="document.getElementById('matthewrudy-query-box').style.display='none';return false;">close</a>
         </div>
       HTML
       render_for_text(alert_html, nil, true)
