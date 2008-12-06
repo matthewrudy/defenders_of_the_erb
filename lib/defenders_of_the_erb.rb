@@ -1,6 +1,6 @@
 $queries_executed = []
 
-# YouShouldntBeCallingTheDatabaseRecursivelyInYourViews
+# Defenders of the ERb
 require 'action_controller/base'
 class ActionController::Base
   def render_with_db_protection(*args)
