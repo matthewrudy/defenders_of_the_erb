@@ -1,13 +1,15 @@
-YouShouldntBeCallingTheDatabaseRecursivelyInYourViews
+Defenders of the ERb
 =====================================================
 
-Introduction goes here.
+Defenders of the ERb is a simple plugin for Rails.
+It sits in your project counting uncached database calls in your views,
+and warns you when you overdo it.
 
+It tries to connect to gravatar to get a picture of me,
+but you can ensure full MatthewRudy-goodness by running the command;
 
-Example
-=======
+  rake freeze:matthewrudy
 
-Example goes here.
+Enjoy.
 
-
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+Copyright (c) 2008 [Matthew Rudy Jacobs], released under the MIT license
