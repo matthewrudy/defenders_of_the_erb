@@ -8,7 +8,7 @@ class ActionController::Base
     render_without_db_protection(*args)
     queries_executed = $queries_executed.dup
     queries_count =  queries_executed.length
-    if queries_count > 0
+    if queries_count > 5
       alert_html = <<-HTML
         <div id="matthewrudy-query-box" style="position:absolute; top:50px; left:50px; width:800px; height: 400px; background-color: white; border: 1px solid black">
           <img src="#{matthewrudy_url}" style="float:left"/>
@@ -16,16 +16,17 @@ class ActionController::Base
             &laquo;You shouldn't be calling the database recursively in your views&raquo;
           </blockquote>
           <blockquote style="font-size:20px;">
-            You called the database #{queries_count} times, that's way too many. (<a href="#" onclick="document.getElementById('matthewrudy-queries-list').style.display = 'block'; return false;">show</a>)</p>
+            You called the database, uncached, #{queries_count} times, that's way too many. (<a href="#" onclick="document.getElementById('matthewrudy-queries-list').style.display = 'block'; return false;">show</a>)</p>
           </blockquote>
-          <pre id="matthewrudy-queries-list" style="display:none; width: 400px; overflow: auto">
-            #{queries_executed.join("\n")}
-          </pre>
-          <a href="#" title="close this matthewrudy" onclick="document.getElementById('matthewrudy-query-box').style.display='none';return false;">close</a>
+          <a href="#" title="close this matthewrudy" onclick="document.getElementById('matthewrudy-query-box').style.display='none';document.getElementById('matthewrudy-queries-list').style.display='none';return false;">close</a>
+        </div>
+        <div id="matthewrudy-queries-list" style="position:absolute; top:460px; left:50px; width:800px; background-color: white; border: 1px solid black; display:none; overflow: auto">
+          #{queries_executed.map{|query| "<pre><code class='sql'>#{query}</code></pre>"}.join("\n")}
         </div>
       HTML
       render_for_text(alert_html, nil, true)
     end
+    #logger.info("MatthewRudy query count: #{queries_count}")
   end
   alias_method_chain :render, :db_protection
 
