@@ -8,7 +8,8 @@ class ActionController::Base
     render_without_db_protection(*args)
     queries_executed = $queries_executed.dup
     queries_count =  queries_executed.length
-    if queries_count > 5
+    logger.info("defenders of the erb: #{queries_count} uncached queries made!")
+    if queries_count > (ENV["QUERY_MAX"] || 5).to_i
       alert_html = <<-HTML
         <div id="matthewrudy-query-box" style="position:absolute; top:50px; left:50px; width:800px; height: 400px; background-color: white; border: 1px solid black">
           <img src="#{matthewrudy_url}" style="float:left"/>
